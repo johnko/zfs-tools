@@ -34,10 +34,20 @@ else
     LASTSNAP="${4}"
 fi
 
-if [ -n "$LASTSNAP" ]; then
-    echo "zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | ${REMOTE_CONNECTION} zfs ${INCREMENTRECV} ${RECVPOOL}"
-          zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | ${REMOTE_CONNECTION} zfs ${INCREMENTRECV} ${RECVPOOL} || exit $?
+if which pv >/dev/null 2>&1 ; then
+    if [ -n "$LASTSNAP" ]; then
+        echo "zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv | ${REMOTE_CONNECTION} zfs ${INCREMENTRECV} ${RECVPOOL}"
+              zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv | ${REMOTE_CONNECTION} zfs ${INCREMENTRECV} ${RECVPOOL} || exit $?
+    else
+        echo "zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | pv | ${REMOTE_CONNECTION} zfs ${FIRSTRECVOPT} ${RECVPOOL}"
+              zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | pv | ${REMOTE_CONNECTION} zfs ${FIRSTRECVOPT} ${RECVPOOL} || exit $?
+    fi
 else
-    echo "zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | ${REMOTE_CONNECTION} zfs ${FIRSTRECVOPT} ${RECVPOOL}"
-          zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | ${REMOTE_CONNECTION} zfs ${FIRSTRECVOPT} ${RECVPOOL} || exit $?
+    if [ -n "$LASTSNAP" ]; then
+        echo "zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | ${REMOTE_CONNECTION} zfs ${INCREMENTRECV} ${RECVPOOL}"
+              zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | ${REMOTE_CONNECTION} zfs ${INCREMENTRECV} ${RECVPOOL} || exit $?
+    else
+        echo "zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | ${REMOTE_CONNECTION} zfs ${FIRSTRECVOPT} ${RECVPOOL}"
+              zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | ${REMOTE_CONNECTION} zfs ${FIRSTRECVOPT} ${RECVPOOL} || exit $?
+    fi
 fi
