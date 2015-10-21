@@ -39,11 +39,18 @@ if which pv >/dev/null 2>&1 ; then
     FIRSTRECVOPT="recv -udF"
     INCREMENTSEND="send -pR -I"
     INCREMENTRECV="recv -ud"
-    PVSIZE=$( ${REMOTE_CONNECTION} zfs send -nP ${FIRSTSNAP} 2>&1 | grep "^size" | awk '{print $NF}' )
     if [ -n "$LASTSNAP" ]; then
+        PVSIZE=$( ${REMOTE_CONNECTION} zfs send -nPR -I ${FIRSTSNAP} ${LASTSNAP} 2>&1 | grep "^size" | awk '{print $NF}' )
+        if [ "x" = "x${PVSIZE}" ]; then
+            PVSIZE=0
+        fi
         echo "${REMOTE_CONNECTION} zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv -s ${PVSIZE} | zfs ${INCREMENTRECV} ${RECVPOOL}"
               ${REMOTE_CONNECTION} zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv -s ${PVSIZE} | zfs ${INCREMENTRECV} ${RECVPOOL} || exit $?
     else
+        PVSIZE=$( ${REMOTE_CONNECTION} zfs send -nPR ${FIRSTSNAP} 2>&1 | grep "^size" | awk '{print $NF}' )
+        if [ "x" = "x${PVSIZE}" ]; then
+            PVSIZE=0
+        fi
         echo "${REMOTE_CONNECTION} zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | pv -s ${PVSIZE} | zfs ${FIRSTRECVOPT} ${RECVPOOL}"
               ${REMOTE_CONNECTION} zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | pv -s ${PVSIZE} | zfs ${FIRSTRECVOPT} ${RECVPOOL} || exit $?
     fi
