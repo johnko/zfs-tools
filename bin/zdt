@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# Displays the size of the ZPOOL dedup table in RAM
+
 #formula from
 #http://serverfault.com/questions/533877/how-large-is-my-zfs-dedupe-table-at-the-moment/533880#533880
 
