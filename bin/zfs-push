@@ -35,6 +35,10 @@ else
 fi
 
 if which pv >/dev/null 2>&1 ; then
+    FIRSTSENDOPT="send -pR"
+    FIRSTRECVOPT="recv -udF"
+    INCREMENTSEND="send -pR -I"
+    INCREMENTRECV="recv -ud"
     if [ -n "$LASTSNAP" ]; then
         echo "zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv | ${REMOTE_CONNECTION} zfs ${INCREMENTRECV} ${RECVPOOL}"
               zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv | ${REMOTE_CONNECTION} zfs ${INCREMENTRECV} ${RECVPOOL} || exit $?
