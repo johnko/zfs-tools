@@ -1,0 +1,16 @@
+#!/bin/sh
+
+#formula from
+#http://serverfault.com/questions/533877/how-large-is-my-zfs-dedupe-table-at-the-moment/533880#533880
+
+if [ "x" != "x${1}" ]; then
+    POOLNAME=$1
+else
+    POOLNAME=tank
+fi
+
+if zpool status -D ${POOLNAME} | grep dedup >/dev/null 2>/dev/null ; then
+    if ! zpool status -D ${POOLNAME} | grep 'no DDT entries' >/dev/null 2>/dev/null ; then
+        echo dedup table: `zpool status -D ${POOLNAME} | grep dedup | tr -d ',' | awk '{print $4"*"$9"/1024/1024"}' | bc` MB
+    fi
+fi
