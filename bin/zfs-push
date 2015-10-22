@@ -34,7 +34,7 @@ else
     LASTSNAP="${4}"
 fi
 
-if which pv >/dev/null 2>&1 ; then
+if which pv >/dev/null 2>&1 || which dpv >/dev/null 2>&1 ; then
     FIRSTSENDOPT="send -pR"
     FIRSTRECVOPT="recv -udF"
     INCREMENTSEND="send -pR -I"
@@ -47,12 +47,23 @@ if which pv >/dev/null 2>&1 ; then
     if [ "x" = "x${PVSIZE}" ]; then
         PVSIZE=0
     fi
+fi
+
+if which pv >/dev/null 2>&1 ; then
     if [ -n "$LASTSNAP" ]; then
         echo "zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv -s ${PVSIZE} | ${REMOTE_CONNECTION} zfs ${INCREMENTRECV} ${RECVPOOL}"
               zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv -s ${PVSIZE} | ${REMOTE_CONNECTION} zfs ${INCREMENTRECV} ${RECVPOOL} || exit $?
     else
         echo "zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | pv -s ${PVSIZE} | ${REMOTE_CONNECTION} zfs ${FIRSTRECVOPT} ${RECVPOOL}"
               zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | pv -s ${PVSIZE} | ${REMOTE_CONNECTION} zfs ${FIRSTRECVOPT} ${RECVPOOL} || exit $?
+    fi
+elif which dpv >/dev/null 2>&1 ; then
+    if [ -n "$LASTSNAP" ]; then
+        echo "zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | dpv -L-1 -x \"${REMOTE_CONNECTION} zfs ${INCREMENTRECV} ${RECVPOOL}\" ${PVSIZE}"
+              zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | dpv -L-1 -x  "${REMOTE_CONNECTION} zfs ${INCREMENTRECV} ${RECVPOOL}"  ${PVSIZE}:"zfs send ${FIRSTSNAP} ${LASTSNAP} - ${REMOTE_CONNECTION} zfs recv ${RECVPOOL}" || exit $?
+    else
+        echo "zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | dpv -L-1 -x \"${REMOTE_CONNECTION} zfs ${FIRSTRECVOPT} ${RECVPOOL}\" ${PVSIZE}"
+              zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | dpv -L-1 -x  "${REMOTE_CONNECTION} zfs ${FIRSTRECVOPT} ${RECVPOOL}"  ${PVSIZE}:"zfs send ${FIRSTSNAP} - ${REMOTE_CONNECTION} zfs recv ${RECVPOOL}" || exit $?
     fi
 else
     if [ -n "$LASTSNAP" ]; then
