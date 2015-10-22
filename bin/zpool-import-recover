@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# from https://www.illumos.org/issues/2607
+
+if [ "x" = "x${1}" ]; then
+    echo "Usage: $0 zpool_name"
+    echo "       $0 zpool_id zpool_name"
+    exit 1
+fi
+
+zpool import -fNFn -R /mnt ${1} ${2}
