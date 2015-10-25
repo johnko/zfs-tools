@@ -2,9 +2,6 @@
 
 # Displays the size of the ZPOOL dedup table in RAM
 
-#formula from
-#http://serverfault.com/questions/533877/how-large-is-my-zfs-dedupe-table-at-the-moment/533880#533880
-
 if [ "x" != "x${1}" ]; then
     POOLNAME=$1
 else
@@ -13,6 +10,15 @@ fi
 
 if zpool status -D ${POOLNAME} | grep dedup >/dev/null 2>/dev/null ; then
     if ! zpool status -D ${POOLNAME} | grep 'no DDT entries' >/dev/null 2>/dev/null ; then
-        echo dedup table: `zpool status -D ${POOLNAME} | grep dedup | tr -d ',' | awk '{print $4"*"$9"/1024/1024"}' | bc` MB
+        DDTENTRIES=$( zpool status -D ${POOLNAME} | grep dedup | tr -d ',' | awk '{print $4}' )
+        CORE=$( zpool status -D ${POOLNAME} | grep dedup | tr -d ',' | awk '{print $9}' )
+        TOTAL=$( zpool status -D ${POOLNAME} | grep Total | awk '{print $2}' )
+        TNUMBER=$( echo $TOTAL | grep -o '[0-9][.0-9]*' )
+        TSUFFIX=$( echo $TOTAL | grep -o '[a-zA-Z][a-zA-Z]*' )
+
+        #formula from http://serverfault.com/questions/533877/how-large-is-my-zfs-dedupe-table-at-the-moment/533880#533880
+        echo dedup table: $( echo $DDTENTRIES $CORE | awk '{printf "%.0f", $1 * $2 / 1024 / 1024 }') MB
+
+        echo alloc blocks table: $( echo $TOTAL | awk '{printf "%.0f", $1 * 320 }') $TSUFFIX
     fi
 fi
