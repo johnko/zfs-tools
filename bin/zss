@@ -2,6 +2,6 @@
 
 # Display zpool status, but translate glabel uuids to gpart devices
 
-SEDARGS=`glabel status | grep -v 'Name.*Components' | awk '{print "-es,"$1","$3","}'`
+SEDARGS=`glabel status -s | awk '{print "-es,"$1","$3","}'`
 
 zpool status $1 | sed $SEDARGS
