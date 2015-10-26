@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Display zfs list
+
+zfs list -o name,used,available,refer,usedbychildren,usedbysnapshots,quota,canmount,mounted,mountpoint,creation $*

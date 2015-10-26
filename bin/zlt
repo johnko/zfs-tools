@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ "x" != "x${1}" ]; then
+    POOLNAME=$1
+else
+    POOLNAME=tank
+fi
+
+zpool list -o name,alloc,cap,dedup,health ${POOLNAME}
+zfs list -o used,refer,usedchild,usedsnap,name -r ${POOLNAME}

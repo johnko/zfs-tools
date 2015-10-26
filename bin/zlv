@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# list zfs volume
+
+zfs list -t volume -o name,volsize,used,available,refer,usedbysnapshots,creation $*

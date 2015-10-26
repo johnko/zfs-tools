@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Display zpool status
+
+zpool status -v $*

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Display zfs list alternative
+
+zfs list -o name,dedup,compressratio,compression,checksum,atime,exec,setuid,readonly,jailed,canmount,mounted,mountpoint $*

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Display zfs list snap name only sorted by creation
+
+zfs list -t snapshot -o name -s creation $*

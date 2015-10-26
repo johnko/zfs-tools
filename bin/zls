@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Display zfs list snapshot
+
+zfs list -t snapshot -o name,used,refer,creation -s creation $*
