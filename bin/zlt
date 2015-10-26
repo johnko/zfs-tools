@@ -6,5 +6,5 @@ else
     POOLNAME=tank
 fi
 
-zpool list -o name,alloc,cap,dedup,health ${POOLNAME}
+zpool list -o name,alloc,free,freeing,cap,dedup,health ${POOLNAME}
 zfs list -o used,refer,usedchild,usedsnap,name -r ${POOLNAME}
