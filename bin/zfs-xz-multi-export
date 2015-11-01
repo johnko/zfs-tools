@@ -21,9 +21,8 @@ fi
 PREVSNAP=""
 for i in $( ls /${DATASET}/.zfs/snapshot/ | grep -A${COUNT} ${STARTAT} ) ; do
 
-    echo "generating zfs send -pD -I ${DATASET}@${PREVSNAP} ${DATASET}@${i}"
-
     if [ "x" != "x${PREVSNAP}" ]; then
+        echo "generating zfs send -pD -I ${DATASET}@${PREVSNAP} ${DATASET}@${i}"
         # must have prevsnap
         if [ "x" = "x${DRYRUN}" ]; then
             zfs-xz-export ${DATASET}@${PREVSNAP} ${OUTPUTDIR} ${DATASET}@${i}
