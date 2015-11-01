@@ -1,0 +1,40 @@
+#!/bin/sh
+
+if [ -z "${2}" ]; then
+    echo "Usage: $0  snapshot  output_folder  count"
+    exit 1
+fi
+
+#DRYRUN="-n"
+
+FIRSTSNAP="${1}"
+DATASET=${FIRSTSNAP%@*}
+STARTAT=${FIRSTSNAP#*@}
+
+OUTPUTDIR="${2}"
+
+COUNT=${3}
+if [ "x" = "x$COUNT" ]; then
+    COUNT=1
+fi
+
+PREVSNAP=""
+for i in $( ls /${DATASET}/.zfs/snapshot/ | grep -A${COUNT} ${STARTAT} ) ; do
+
+    echo "generating zfs send -pD -I ${DATASET}@${PREVSNAP} ${DATASET}@${i}"
+
+    if [ "x" != "x${PREVSNAP}" ]; then
+        # must have prevsnap
+        if [ "x" = "x${DRYRUN}" ]; then
+            zfs-xz-export ${DATASET}@${PREVSNAP} ${OUTPUTDIR} ${DATASET}@${i}
+        else
+            echo "DRYRUN, so skipping"
+        fi
+    fi
+
+    PREVSNAP="${i}"
+
+done
+
+# You should run this in a separate terminal
+# rsync -viaPe "ssh -p ${REMOTEPORT}" --inplace ${OUTPUTDIR}/ ${REMOTEHOST}:${OUTPUTDIR}/

@@ -1,6 +1,5 @@
 #!/bin/sh
 
-FIRSTRECVOPT="recv -vudF"
 INCREMENTRECV="recv -vud"
 
 if [ -z "${2}" ]; then

@@ -1,0 +1,25 @@
+#!/bin/sh
+
+if [ -z "${2}" ]; then
+    echo "Usage: $0  input_folder  pool"
+    exit 1
+fi
+
+#DRYRUN="-n"
+
+OUTPUTDIR="${1}"
+
+RECVPOOL="${2}"
+
+PREVSNAP=""
+for i in $( ls ${OUTPUTDIR} ) ; do
+
+    echo "importing ${i}"
+
+    if [ "x" = "x${DRYRUN}" ]; then
+        zfs-xz-import ${i} ${RECVPOOL}
+    else
+        echo "DRYRUN, so skipping"
+    fi
+
+done
