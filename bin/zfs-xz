@@ -27,17 +27,23 @@ esac
 FIRSTSNAP="${2}"
 
 OUTFOLDER="${3}"
-if [ "$DIRECTION" = "push" ]; then
-    SAFENAME=$( echo $FIRSTSNAP | tr -c '[:alnum:]' _ )
-    OUTFILE="${OUTFOLDER}/${SAFENAME}.zfs.xz"
-elif [ "$DIRECTION" = "pull" ]; then
-    OUTFILE="${OUTFOLDER}"
-fi
 
 if [ "x" = "x${4}" ]; then
     unset LASTSNAP
 else
     LASTSNAP="${4}"
+fi
+
+if [ "$DIRECTION" = "push" ]; then
+    SAFENAME=$( echo $FIRSTSNAP | tr -c '[:alnum:]' _ )
+    if [ "x" = "x${LASTSNAP}" ]; then
+        OUTFILE="${OUTFOLDER}/${SAFENAME}.zfs.xz"
+    else
+        SAFELASTNAME=$( echo $LASTSNAP | tr -c '[:alnum:]' _ )
+        OUTFILE="${OUTFOLDER}/${SAFENAME}_to_${SAFELASTNAME}.zfs.xz"
+    fi
+elif [ "$DIRECTION" = "pull" ]; then
+    OUTFILE="${OUTFOLDER}"
 fi
 
 if which pv >/dev/null 2>&1 || which dpv >/dev/null 2>&1 ; then
