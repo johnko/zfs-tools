@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ -z "${4}" ]; then
+if [ -z "${2}" ]; then
     echo "Usage: $0  remote_server:remote_port  folder"
     echo "use - as remote_server for localhost"
     exit 1
