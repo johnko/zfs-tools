@@ -18,6 +18,8 @@ for i in $( ls ${OUTPUTDIR} ) ; do
 
     if [ "x" = "x${DRYRUN}" ]; then
         zfs-xz-import ${OUTPUTDIR}/${i} ${RECVPOOL}
+        mkdir ${OUTPUTDIR}/.done
+        mv ${OUTPUTDIR}/${i} ${OUTPUTDIR}/.done/${i}
     else
         echo "DRYRUN, so skipping"
     fi
