@@ -3,3 +3,32 @@
 # local_last_snapshot
 # ssh remote remote_last_snapshot
 # zfs-pu ll local_last_snapshot to remote_last_snapshot
+
+if [ -z "${3}" ]; then
+    echo "Usage: $0  dataset  remote_server:remote_port  pool"
+    exit 1
+fi
+
+#DRYRUN="-n"
+
+DATASET="${1}"
+
+if [ "x-" = "x${2}" ]; then
+    REMOTE_CONNECTION=""
+else
+    if echo "${2}" | grep ':' >/dev/null 2>&1 ; then
+        REMOTE_HOST=$( echo "${2}" | cut -f1 -d: )
+        REMOTE_PORT=$( echo "${2}" | cut -f2 -d: )
+    else
+        REMOTE_HOST="${2}"
+        REMOTE_PORT=22
+    fi
+    REMOTE_CONNECTION="ssh -p ${REMOTE_PORT} ${REMOTE_HOST}"
+fi
+
+RECVPOOL="${3}"
+
+
+STARTAT=$( ls /${DATASET}/.zfs/snapshot/ | tail -1 )
+ENDAT=$( $REMOTE_CONNECTION "ls /${DATASET}/.zfs/snapshot/" | grep -A999 ${STARTAT} | tail -1 )
+zfs-pu ll ${DATASET}@${STARTAT} ${2} ${RECVPOOL} ${DATASET}@${ENDAT}
