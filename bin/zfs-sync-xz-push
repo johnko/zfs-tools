@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# ssh remote remote_last_snapshot
+# zfs-xz-multi-export remote_last_snapshot to local_last_snapshot
+# zfs-xz-rsync-push
+# ssh remote zfs-xz-multi-import

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# local_last_snapshot
+# ssh remote remote_last_snapshot
+# zfs-pu ll local_last_snapshot to remote_last_snapshot
