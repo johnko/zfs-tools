@@ -14,10 +14,10 @@ RECVPOOL="${2}"
 PREVSNAP=""
 for i in $( ls ${OUTPUTDIR} ) ; do
 
-    echo "importing ${i}"
+    echo "importing ${OUTPUTDIR}/${i}"
 
     if [ "x" = "x${DRYRUN}" ]; then
-        zfs-xz-import ${i} ${RECVPOOL}
+        zfs-xz-import ${OUTPUTDIR}/${i} ${RECVPOOL}
     else
         echo "DRYRUN, so skipping"
     fi
