@@ -29,7 +29,7 @@ local$  mkdir -p /scratch/urep
 remote$  mkdir -p /scratch/urep
 local$  zfs-sync-xz-pull  tank/urep  remote_hostname  tank  /scratch/urep
 
-# if interrupted, you can export manually on remote using tmux
+# if interrupted, you can export manually on remote while in tmux
 remote$  zfs-xz-multi-export  tank/urep@$START_AT_SNAPSHOT  /scratch/urep  999
 
 # then loop rsync
