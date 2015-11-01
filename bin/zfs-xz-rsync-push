@@ -23,4 +23,5 @@ OUTPUTDIR="${2}"
 for i in $( ls ${OUTPUTDIR} ) ; do
     rsync -viaPe "ssh -p ${REMOTE_PORT}" --inplace ${OUTPUTDIR}/${i} ${REMOTE_HOST}:${OUTPUTDIR}/${i} \
         && mv ${OUTPUTDIR}/${i} ${OUTPUTDIR}/.done/${i}
+    sleep 5
 done

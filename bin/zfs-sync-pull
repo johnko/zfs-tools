@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# local_last_snapshot
-# ssh remote remote_last_snapshot
-# zfs-pu ll local_last_snapshot to remote_last_snapshot
 
 if [ -z "${3}" ]; then
     echo "Usage: $0  dataset  remote_server:remote_port  pool"
@@ -28,10 +25,12 @@ fi
 
 RECVPOOL="${3}"
 
-
+# ALGORITHM: local_last_snapshot
 STARTAT=$( ls /${DATASET}/.zfs/snapshot/ | tail -1 )
+# ALGORITHM: ssh remote remote_last_snapshot
 ENDAT=$( $REMOTE_CONNECTION "ls /${DATASET}/.zfs/snapshot/" | grep -A999 ${STARTAT} | tail -1 )
 
+# ALGORITHM: zfs-pu ll local_last_snapshot to remote_last_snapshot
 if [ "$STARTAT" = "$ENDAT" ]; then
     echo "local $STARTAT = remote $ENDAT"
 else
