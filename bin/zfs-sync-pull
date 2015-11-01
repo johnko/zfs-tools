@@ -31,4 +31,6 @@ RECVPOOL="${3}"
 
 STARTAT=$( ls /${DATASET}/.zfs/snapshot/ | tail -1 )
 ENDAT=$( $REMOTE_CONNECTION "ls /${DATASET}/.zfs/snapshot/" | grep -A999 ${STARTAT} | tail -1 )
-zfs-pu ll ${DATASET}@${STARTAT} ${2} ${RECVPOOL} ${DATASET}@${ENDAT}
+
+echo "zfs-pu ll ${DATASET}@${STARTAT} ${2} ${RECVPOOL} ${DATASET}@${ENDAT}"
+      zfs-pu ll ${DATASET}@${STARTAT} ${2} ${RECVPOOL} ${DATASET}@${ENDAT}
