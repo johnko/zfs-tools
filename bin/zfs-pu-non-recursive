@@ -1,0 +1,95 @@
+#!/bin/sh
+
+FIRSTSENDOPT="send -pv${RECURSIVE}"
+FIRSTRECVOPT="recv -vudF"
+INCREMENTSEND="send -pv${RECURSIVE} -I"
+INCREMENTRECV="recv -vud"
+
+if [ -z "${4}" ]; then
+    echo "Usage: $0  push|pull  snapshot  remote_server:remote_port target_pool [last_snapshot]"
+    echo "use - as remote_server for localhost"
+    exit 1
+fi
+
+case "${1}" in
+    ll|pull)
+        DIRECTION="pull"
+        ;;
+    sh|push)
+        DIRECTION="push"
+        ;;
+    *)
+        echo "ERROR: unknown direction."
+        exit 1
+        ;;
+esac
+
+FIRSTSNAP="${2}"
+
+if [ "x-" = "x${3}" ]; then
+    REMOTE_CONNECTION=""
+else
+    if echo "${3}" | grep ':' >/dev/null 2>&1 ; then
+        REMOTE_HOST=$( echo "${3}" | cut -f1 -d: )
+        REMOTE_PORT=$( echo "${3}" | cut -f2 -d: )
+    else
+        REMOTE_HOST="${3}"
+        REMOTE_PORT=22
+    fi
+    REMOTE_CONNECTION="ssh -p ${REMOTE_PORT} ${REMOTE_HOST}"
+fi
+
+RECVPOOL="${4}"
+
+if [ "x" = "x${5}" ]; then
+    unset LASTSNAP
+else
+    LASTSNAP="${5}"
+fi
+
+if [ "pull" = "$DIRECTION" ]; then
+    REMOTESSHSEND="${REMOTE_CONNECTION}"
+elif [ "push" = "$DIRECTION" ]; then
+    REMOTESSHRECV="${REMOTE_CONNECTION}"
+fi
+
+if which pv >/dev/null 2>&1 || which dpv >/dev/null 2>&1 ; then
+    FIRSTSENDOPT="send -p${RECURSIVE}"
+    FIRSTRECVOPT="recv -udF"
+    INCREMENTSEND="send -p${RECURSIVE} -I"
+    INCREMENTRECV="recv -ud"
+    if [ -n "$LASTSNAP" ]; then
+        PVSIZE=$( ${REMOTESSHSEND} zfs send -nP${RECURSIVE} -I ${FIRSTSNAP} ${LASTSNAP} 2>&1 | grep "^size" | awk '{print $NF}' )
+    else
+        PVSIZE=$( ${REMOTESSHSEND} zfs send -nP${RECURSIVE} ${FIRSTSNAP} 2>&1 | grep "^size" | awk '{print $NF}' )
+    fi
+    if [ "x" = "x${PVSIZE}" ]; then
+        PVSIZE=0
+    fi
+fi
+
+if which pv >/dev/null 2>&1 ; then
+    if [ -n "$LASTSNAP" ]; then
+        echo "${REMOTESSHSEND} zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv -s ${PVSIZE} | ${REMOTESSHRECV} zfs ${INCREMENTRECV} ${RECVPOOL}"
+              ${REMOTESSHSEND} zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv -s ${PVSIZE} | ${REMOTESSHRECV} zfs ${INCREMENTRECV} ${RECVPOOL} || exit $?
+    else
+        echo "${REMOTESSHSEND} zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | pv -s ${PVSIZE} | ${REMOTESSHRECV} zfs ${FIRSTRECVOPT} ${RECVPOOL}"
+              ${REMOTESSHSEND} zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | pv -s ${PVSIZE} | ${REMOTESSHRECV} zfs ${FIRSTRECVOPT} ${RECVPOOL} || exit $?
+    fi
+elif which dpv >/dev/null 2>&1 ; then
+    if [ -n "$LASTSNAP" ]; then
+        echo "${REMOTESSHSEND} zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | dpv -L-1 -x \"${REMOTESSHRECV} zfs ${INCREMENTRECV} ${RECVPOOL}\" ${PVSIZE}"
+              ${REMOTESSHSEND} zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | dpv -L-1 -x  "${REMOTESSHRECV} zfs ${INCREMENTRECV} ${RECVPOOL}"  ${PVSIZE}:"zfs send ${REMOTE_CONNECTION} ${FIRSTSNAP} ${LASTSNAP} - zfs recv ${RECVPOOL}" || exit $?
+    else
+        echo "${REMOTESSHSEND} zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | dpv -L-1 -x \"${REMOTESSHRECV} zfs ${FIRSTRECVOPT} ${RECVPOOL}\" ${PVSIZE}"
+              ${REMOTESSHSEND} zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | dpv -L-1 -x  "${REMOTESSHRECV} zfs ${FIRSTRECVOPT} ${RECVPOOL}"  ${PVSIZE}:"zfs send ${REMOTE_CONNECTION} ${FIRSTSNAP} - zfs recv ${RECVPOOL}" || exit $?
+    fi
+else
+    if [ -n "$LASTSNAP" ]; then
+        echo "${REMOTESSHSEND} zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | ${REMOTESSHRECV} zfs ${INCREMENTRECV} ${RECVPOOL}"
+              ${REMOTESSHSEND} zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | ${REMOTESSHRECV} zfs ${INCREMENTRECV} ${RECVPOOL} || exit $?
+    else
+        echo "${REMOTESSHSEND} zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | ${REMOTESSHRECV} zfs ${FIRSTRECVOPT} ${RECVPOOL}"
+              ${REMOTESSHSEND} zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | ${REMOTESSHRECV} zfs ${FIRSTRECVOPT} ${RECVPOOL} || exit $?
+    fi
+fi
