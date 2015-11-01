@@ -35,6 +35,3 @@ for i in $( ls /${DATASET}/.zfs/snapshot/ | grep -A${COUNT} ${STARTAT} ) ; do
     PREVSNAP="${i}"
 
 done
-
-# You should run this in a separate terminal
-# rsync -viaPe "ssh -p ${REMOTEPORT}" --inplace ${OUTPUTDIR}/ ${REMOTEHOST}:${OUTPUTDIR}/
