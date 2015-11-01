@@ -12,5 +12,5 @@ OUTFILE="${1}"
 
 RECVPOOL="${2}"
 
-echo "xz -dk ${OUTFILE} - | zfs ${INCREMENTRECV} ${RECVPOOL}"
-      xz -dk ${OUTFILE} - | zfs ${INCREMENTRECV} ${RECVPOOL} || exit $?
+echo "xz -dck ${OUTFILE} | zfs ${INCREMENTRECV} ${RECVPOOL}"
+      xz -dck ${OUTFILE} | zfs ${INCREMENTRECV} ${RECVPOOL} || exit $?
