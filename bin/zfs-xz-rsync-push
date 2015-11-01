@@ -22,6 +22,6 @@ fi
 OUTPUTDIR="${2}"
 
 for i in $( ls ${OUTPUTDIR} ) ; do
-    rsync -nviaPe "ssh -p ${REMOTEPORT}" --inplace ${OUTPUTDIR}/ ${REMOTEHOST}:${OUTPUTDIR}/ \
+    rsync -nviaPe "ssh -p ${REMOTE_PORT}" --inplace ${OUTPUTDIR}/ ${REMOTE_HOST}:${OUTPUTDIR}/ \
         && mv ${OUTPUTDIR}/${i} ${OUTPUTDIR}/.done/${i}
 done
