@@ -1,0 +1,15 @@
+#!/bin/sh
+
+TARGETUSER=urep
+DATASET=tank/$TARGETUSER
+
+sysctl vfs.usermount=1
+ALLPERMISSIONS=$( man zfs | grep subcommand | awk '$2~/subcommand/' | tail +3 | awk '{print $1}' | tr "\n" "," | sed 's/,$//' )
+
+zfs create $DATASET
+
+# let them be owner of their own folder
+chown $TARGETUSER /$DATASET
+
+# allow them access to zfs on their dataset
+zfs allow -u $TARGETUSER $ALLPERMISSIONS $DATASET
