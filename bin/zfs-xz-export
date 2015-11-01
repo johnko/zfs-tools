@@ -1,62 +1,38 @@
 #!/bin/sh
 
 FIRSTSENDOPT="send -pv${RECURSIVE}"
-FIRSTRECVOPT="recv -vudF"
 INCREMENTSEND="send -pv${RECURSIVE} -I"
-INCREMENTRECV="recv -vud"
 
-if [ -z "${3}" ]; then
-    echo "Usage: $0  export|import  snapshot  output_folder  [last_snapshot]"
-    echo "use - as remote_server for localhost"
+if [ -z "${2}" ]; then
+    echo "Usage: $0  snapshot  output_folder  [last_snapshot]"
     exit 1
 fi
 
-case "${1}" in
-    i|import)
-        DIRECTION="pull"
-        ;;
-    e|export)
-        DIRECTION="push"
-        ;;
-    *)
-        echo "ERROR: unknown direction."
-        exit 1
-        ;;
-esac
+FIRSTSNAP="${1}"
 
-FIRSTSNAP="${2}"
+OUTFOLDER="${2}"
 
-OUTFOLDER="${3}"
-
-if [ "x" = "x${4}" ]; then
+if [ "x" = "x${3}" ]; then
     unset LASTSNAP
 else
-    LASTSNAP="${4}"
+    LASTSNAP="${3}"
 fi
 
-if [ "$DIRECTION" = "push" ]; then
-    SAFENAME=$( echo $FIRSTSNAP | tr -c '[:alnum:]' _ )
-    if [ "x" = "x${LASTSNAP}" ]; then
-        OUTFILE="${OUTFOLDER}/${SAFENAME}.zfs.xz"
-    else
-        SAFELASTNAME=$( echo $LASTSNAP | tr -c '[:alnum:]' _ )
-        OUTFILE="${OUTFOLDER}/${SAFENAME}_to_${SAFELASTNAME}.zfs.xz"
-    fi
-elif [ "$DIRECTION" = "pull" ]; then
-    OUTFILE="${OUTFOLDER}"
+SAFENAME=$( echo $FIRSTSNAP | tr -c '[:alnum:]' _ )
+if [ "x" = "x${LASTSNAP}" ]; then
+    OUTFILE="${OUTFOLDER}/${SAFENAME}.zfs.xz"
+else
+    SAFELASTNAME=$( echo $LASTSNAP | tr -c '[:alnum:]' _ )
+    OUTFILE="${OUTFOLDER}/${SAFENAME}_to_${SAFELASTNAME}.zfs.xz"
 fi
 
 if which pv >/dev/null 2>&1 || which dpv >/dev/null 2>&1 ; then
-    if [ "$DIRECTION" = "push" ]; then
-        FIRSTSENDOPT="send -p${RECURSIVE}"
-        FIRSTRECVOPT="recv -udF"
-        INCREMENTSEND="send -p${RECURSIVE} -I"
-        INCREMENTRECV="recv -ud"
-        if [ -n "$LASTSNAP" ]; then
-            PVSIZE=$( zfs send -nP${RECURSIVE} -I ${FIRSTSNAP} ${LASTSNAP} 2>&1 | grep "^size" | awk '{print $NF}' )
-        else
-            PVSIZE=$( zfs send -nP${RECURSIVE} ${FIRSTSNAP} 2>&1 | grep "^size" | awk '{print $NF}' )
-        fi
+    FIRSTSENDOPT="send -p${RECURSIVE}"
+    INCREMENTSEND="send -p${RECURSIVE} -I"
+    if [ -n "$LASTSNAP" ]; then
+        PVSIZE=$( zfs send -nP${RECURSIVE} -I ${FIRSTSNAP} ${LASTSNAP} 2>&1 | grep "^size" | awk '{print $NF}' )
+    else
+        PVSIZE=$( zfs send -nP${RECURSIVE} ${FIRSTSNAP} 2>&1 | grep "^size" | awk '{print $NF}' )
     fi
     if [ "x" = "x${PVSIZE}" ]; then
         PVSIZE=0
@@ -64,29 +40,19 @@ if which pv >/dev/null 2>&1 || which dpv >/dev/null 2>&1 ; then
 fi
 
 if which pv >/dev/null 2>&1 ; then
-    if [ "$DIRECTION" = "push" ]; then
-        if [ -n "$LASTSNAP" ]; then
-            echo "zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv -s ${PVSIZE} | xz > ${OUTFILE}"
-                  zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv -s ${PVSIZE} | xz > ${OUTFILE} || exit $?
-        else
-            echo "zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | pv -s ${PVSIZE} | xz > ${OUTFILE}"
-                  zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | pv -s ${PVSIZE} | xz > ${OUTFILE} || exit $?
-        fi
-    elif [ "$DIRECTION" = "pull" ]; then
-        echo "xz -dk ${OUTFILE} | zfs ${INCREMENTRECV} ${RECVPOOL}"
-              xz -dk ${OUTFILE} | zfs ${INCREMENTRECV} ${RECVPOOL} || exit $?
+    if [ -n "$LASTSNAP" ]; then
+        echo "zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv -s ${PVSIZE} | xz > ${OUTFILE}"
+              zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv -s ${PVSIZE} | xz > ${OUTFILE} || exit $?
+    else
+        echo "zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | pv -s ${PVSIZE} | xz > ${OUTFILE}"
+              zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | pv -s ${PVSIZE} | xz > ${OUTFILE} || exit $?
     fi
 else
-    if [ "$DIRECTION" = "push" ]; then
-        if [ -n "$LASTSNAP" ]; then
-            echo "zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | xz > ${OUTFILE}"
-                  zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | xz > ${OUTFILE} || exit $?
-        else
-            echo "zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | xz > ${OUTFILE}"
-                  zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | xz > ${OUTFILE} || exit $?
-        fi
-    elif [ "$DIRECTION" = "pull" ]; then
-        echo "xz -dk ${OUTFILE} | zfs ${INCREMENTRECV} ${RECVPOOL}"
-              xz -dk ${OUTFILE} | zfs ${INCREMENTRECV} ${RECVPOOL} || exit $?
+    if [ -n "$LASTSNAP" ]; then
+        echo "zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | xz > ${OUTFILE}"
+              zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | xz > ${OUTFILE} || exit $?
+    else
+        echo "zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | xz > ${OUTFILE}"
+              zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | xz > ${OUTFILE} || exit $?
     fi
 fi
