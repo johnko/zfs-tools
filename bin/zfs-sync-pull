@@ -35,6 +35,8 @@ ENDAT=$( $REMOTE_CONNECTION "ls /${DATASET}/.zfs/snapshot/" | grep -A999 ${START
 if [ "$STARTAT" = "$ENDAT" ]; then
     echo "local $STARTAT = remote $ENDAT"
 else
+    echo "zfs rollback ${DATASET}@${STARTAT}"
+          zfs rollback ${DATASET}@${STARTAT}
     echo "zfs-pu ll ${DATASET}@${STARTAT} ${2} ${RECVPOOL} ${DATASET}@${ENDAT}"
           zfs-pu ll ${DATASET}@${STARTAT} ${2} ${RECVPOOL} ${DATASET}@${ENDAT}
 fi
