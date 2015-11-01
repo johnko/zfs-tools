@@ -1,8 +1,8 @@
 #!/bin/sh
 
-FIRSTSENDOPT="send -pv${RECURSIVE}"
+FIRSTSENDOPT="send -pvD${RECURSIVE}"
 FIRSTRECVOPT="recv -vudF"
-INCREMENTSEND="send -pv${RECURSIVE} -I"
+INCREMENTSEND="send -pvD${RECURSIVE} -I"
 INCREMENTRECV="recv -vud"
 
 if [ -z "${4}" ]; then
@@ -54,9 +54,9 @@ elif [ "push" = "$DIRECTION" ]; then
 fi
 
 if which pv >/dev/null 2>&1 || which dpv >/dev/null 2>&1 ; then
-    FIRSTSENDOPT="send -p${RECURSIVE}"
+    FIRSTSENDOPT="send -pD${RECURSIVE}"
     FIRSTRECVOPT="recv -udF"
-    INCREMENTSEND="send -p${RECURSIVE} -I"
+    INCREMENTSEND="send -pD${RECURSIVE} -I"
     INCREMENTRECV="recv -ud"
     if [ -n "$LASTSNAP" ]; then
         PVSIZE=$( ${REMOTESSHSEND} zfs send -nP${RECURSIVE} -I ${FIRSTSNAP} ${LASTSNAP} 2>&1 | grep "^size" | awk '{print $NF}' )
