@@ -11,14 +11,12 @@ OUTPUTDIR="${1}"
 
 RECVPOOL="${2}"
 
-mkdir ${OUTPUTDIR}/.done
-
 for i in $( ls ${OUTPUTDIR} ) ; do
 
     echo "importing ${OUTPUTDIR}/${i}"
 
     if [ "x" = "x${DRYRUN}" ]; then
-        zfs-xz-import ${OUTPUTDIR}/${i} ${RECVPOOL} && rm ${OUTPUTDIR}/${i} # mv ${OUTPUTDIR}/${i} ${OUTPUTDIR}/.done/${i}
+        zfs-xz-import ${OUTPUTDIR}/${i} ${RECVPOOL} && rm ${OUTPUTDIR}/${i}
     else
         echo "DRYRUN, so skipping"
     fi
