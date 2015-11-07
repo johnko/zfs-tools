@@ -27,7 +27,7 @@ RECVPOOL="${3}"
 OUTPUTDIR="${4}"
 
 if [ ! -d /${DATASET}/.zfs/snapshot/ ]; then
-    echo "ERROR: ${DATASET} not mounted or has no snapshots."
+    echo "ERROR: ${DATASET} not mounted."
     exit 1
 fi
 

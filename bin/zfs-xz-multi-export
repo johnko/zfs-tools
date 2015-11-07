@@ -19,7 +19,7 @@ if [ "x" = "x$COUNT" ]; then
 fi
 
 if [ ! -d /${DATASET}/.zfs/snapshot/ ]; then
-    echo "ERROR: ${DATASET} not mounted or has no snapshots."
+    echo "ERROR: ${DATASET} not mounted."
     exit 1
 fi
 
