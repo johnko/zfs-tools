@@ -26,6 +26,10 @@ RECVPOOL="${3}"
 
 OUTPUTDIR="${4}"
 
+if [ ! -d /${DATASET}/.zfs/snapshot/ ]; then
+    echo "ERROR: ${DATASET} not mounted or has no snapshots."
+    exit 1
+fi
 
 # ALGORITHM: local_last_snapshot
 STARTAT=$( ls /${DATASET}/.zfs/snapshot/ | tail -1 )

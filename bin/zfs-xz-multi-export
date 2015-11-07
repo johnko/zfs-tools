@@ -18,6 +18,11 @@ if [ "x" = "x$COUNT" ]; then
     COUNT=1
 fi
 
+if [ ! -d /${DATASET}/.zfs/snapshot/ ]; then
+    echo "ERROR: ${DATASET} not mounted or has no snapshots."
+    exit 1
+fi
+
 PREVSNAP=""
 for i in $( ls /${DATASET}/.zfs/snapshot/ | grep -A${COUNT} ${STARTAT} ) ; do
 
