@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ -z "${2}" ]; then
-    echo "Usage: $0  remote_server:remote_port  folder"
+    echo "Usage: $0  remote_server:remote_port  folder  grep_pattern"
     exit 1
 fi
 
@@ -19,8 +19,15 @@ else
 fi
 
 OUTPUTDIR="${2}"
+PATTERN="${3}"
 
-for i in $( ${REMOTE_CONNECTION} "ls ${OUTPUTDIR}" | grep -v "\.done" ) ; do
+if [ "x" = "x$PATTERN" ]; then
+    REMOTEFILES=$( ${REMOTE_CONNECTION} "ls ${OUTPUTDIR}" | grep -v "\.done" )
+else
+    REMOTEFILES=$( ${REMOTE_CONNECTION} "ls ${OUTPUTDIR}" | grep -v "\.done" | grep "$PATTERN" )
+fi
+
+for i in $REMOTEFILES ; do
     rsync -viaPe "ssh -p ${REMOTE_PORT}" --inplace ${REMOTE_HOST}:${OUTPUTDIR}/${i} ${OUTPUTDIR}/${i} \
         && ${REMOTE_CONNECTION} "rm ${OUTPUTDIR}/${i}"
     sleep 5

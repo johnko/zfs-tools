@@ -31,6 +31,9 @@ if [ ! -d /${DATASET}/.zfs/snapshot/ ]; then
     exit 1
 fi
 
+# pattern to find when using rsync
+SAFENAME=$( echo $DATASET | tr -c '[:alnum:]' _ )
+
 # ALGORITHM: local_last_snapshot
 STARTAT=$( ls /${DATASET}/.zfs/snapshot/ | tail -1 )
 # ALGORITHM: ssh remote remote_last_snapshot
@@ -44,7 +47,7 @@ else
     $REMOTE_CONNECTION "zfs-xz-multi-export  ${DATASET}@${STARTAT}  ${OUTPUTDIR}  5"
 
     # ALGORITHM: zfs-xz-rsync-pull
-    zfs-xz-rsync-pull  ${2}  ${OUTPUTDIR}
+    zfs-xz-rsync-pull  ${2}  ${OUTPUTDIR}  ${SAFENAME}
 
     # ALGORITHM: zfs-xz-multi-import /scratch/urep tank
     echo "zfs rollback ${DATASET}@${STARTAT}"
