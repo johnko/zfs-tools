@@ -11,7 +11,16 @@ OUTPUTDIR="${1}"
 
 RECVPOOL="${2}"
 
-for i in $( ls ${OUTPUTDIR} ) ; do
+PATTERN="${3}"
+
+if [ "x" = "x$PATTERN" ]; then
+    IMPORTFILES=$( ls ${OUTPUTDIR} )
+else
+    IMPORTFILES=$( ls ${OUTPUTDIR} | grep "$PATTERN" )
+fi
+
+
+for i in $IMPORTFILES ; do
 
     echo "importing ${OUTPUTDIR}/${i}"
 

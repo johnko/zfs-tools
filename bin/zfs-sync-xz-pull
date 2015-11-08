@@ -52,6 +52,6 @@ else
     # ALGORITHM: zfs-xz-multi-import /scratch/urep tank
     echo "zfs rollback ${DATASET}@${STARTAT}"
           zfs rollback ${DATASET}@${STARTAT}
-    echo "zfs-xz-multi-import  ${OUTPUTDIR}  ${RECVPOOL}"
-          zfs-xz-multi-import  ${OUTPUTDIR}  ${RECVPOOL}
+    echo "zfs-xz-multi-import  ${OUTPUTDIR}  ${RECVPOOL}  ${SAFENAME}"
+          zfs-xz-multi-import  ${OUTPUTDIR}  ${RECVPOOL}  ${SAFENAME}
 fi
