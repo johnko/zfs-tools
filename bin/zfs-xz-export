@@ -21,9 +21,11 @@ fi
 SAFENAME=$( echo $FIRSTSNAP | tr -c '[:alnum:]' _ )
 if [ "x" = "x${LASTSNAP}" ]; then
     OUTFILE="${OUTFOLDER}/${SAFENAME}.zfs.xz"
+    TMPOUTF="${OUTFOLDER}/.${SAFENAME}.zfs.xz"
 else
     SAFELASTNAME=$( echo $LASTSNAP | tr -c '[:alnum:]' _ )
     OUTFILE="${OUTFOLDER}/${SAFENAME}_to_${SAFELASTNAME}.zfs.xz"
+    TMPOUTF="${OUTFOLDER}/.${SAFENAME}_to_${SAFELASTNAME}.zfs.xz"
 fi
 
 if which pv >/dev/null 2>&1 || which dpv >/dev/null 2>&1 ; then
@@ -39,20 +41,26 @@ if which pv >/dev/null 2>&1 || which dpv >/dev/null 2>&1 ; then
     fi
 fi
 
+if [ -f ${OUTFILE} ]; then
+    exit
+fi
+
 if which pv >/dev/null 2>&1 ; then
     if [ -n "$LASTSNAP" ]; then
-        echo "zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv -s ${PVSIZE} | xz > ${OUTFILE}"
-              zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv -s ${PVSIZE} | xz > ${OUTFILE} || exit $?
+        echo "zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv -s ${PVSIZE} | xz > ${TMPOUTF}"
+              zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | pv -s ${PVSIZE} | xz > ${TMPOUTF} || exit $?
     else
-        echo "zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | pv -s ${PVSIZE} | xz > ${OUTFILE}"
-              zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | pv -s ${PVSIZE} | xz > ${OUTFILE} || exit $?
+        echo "zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | pv -s ${PVSIZE} | xz > ${TMPOUTF}"
+              zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | pv -s ${PVSIZE} | xz > ${TMPOUTF} || exit $?
     fi
 else
     if [ -n "$LASTSNAP" ]; then
-        echo "zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | xz > ${OUTFILE}"
-              zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | xz > ${OUTFILE} || exit $?
+        echo "zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | xz > ${TMPOUTF}"
+              zfs ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | xz > ${TMPOUTF} || exit $?
     else
-        echo "zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | xz > ${OUTFILE}"
-              zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | xz > ${OUTFILE} || exit $?
+        echo "zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | xz > ${TMPOUTF}"
+              zfs ${FIRSTSENDOPT} ${FIRSTSNAP} | xz > ${TMPOUTF} || exit $?
     fi
 fi
+
+mv ${TMPOUTF} ${OUTFILE}
