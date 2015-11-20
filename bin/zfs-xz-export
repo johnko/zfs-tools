@@ -41,7 +41,7 @@ if which pv >/dev/null 2>&1 || which dpv >/dev/null 2>&1 ; then
     fi
 fi
 
-if [ -f ${OUTFILE} ]; then
+if [ -f ${OUTFILE} -o -f ${TMPOUTF} ]; then
     exit
 fi
 
