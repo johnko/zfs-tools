@@ -28,7 +28,8 @@ else
 fi
 
 for i in $REMOTEFILES ; do
-    rsync -viaPe "ssh -p ${REMOTE_PORT}" --inplace ${REMOTE_HOST}:${OUTPUTDIR}/${i} ${OUTPUTDIR}/${i} \
+    # timeout 3600 = 1 hour
+    rsync -viaPe "ssh -p ${REMOTE_PORT}" --inplace --timeout=3600 ${REMOTE_HOST}:${OUTPUTDIR}/${i} ${OUTPUTDIR}/${i} \
         && ${REMOTE_CONNECTION} "rm ${OUTPUTDIR}/${i}"
     sleep 5
 done

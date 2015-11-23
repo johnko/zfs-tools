@@ -21,7 +21,8 @@ fi
 OUTPUTDIR="${2}"
 
 for i in $( ls ${OUTPUTDIR} ) ; do
-    rsync -viaPe "ssh -p ${REMOTE_PORT}" --inplace ${OUTPUTDIR}/${i} ${REMOTE_HOST}:${OUTPUTDIR}/${i} \
+    # timeout 3600 = 1 hour
+    rsync -viaPe "ssh -p ${REMOTE_PORT}" --inplace --timeout=3600 ${OUTPUTDIR}/${i} ${REMOTE_HOST}:${OUTPUTDIR}/${i} \
         && rm ${OUTPUTDIR}/${i}
     sleep 5
 done
