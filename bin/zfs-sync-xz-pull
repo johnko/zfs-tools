@@ -39,6 +39,12 @@ STARTAT=$( ls /${DATASET}/.zfs/snapshot/ | tail -1 )
 # ALGORITHM: ssh remote remote_last_snapshot
 ENDAT=$( $REMOTE_CONNECTION "ls /${DATASET}/.zfs/snapshot/" | grep -A999 ${STARTAT} | tail -1 )
 
+if [  -e /usr/local/www/data ]; then
+    cat >/usr/local/www/data/.snapshot.${SAFENAME}.json <<EOF
+{"name":"${DATASET}","local":"${STARTAT}","remote":"${ENDAT}"},
+EOF
+fi
+
 if [ "$STARTAT" = "$ENDAT" ]; then
     echo "local $STARTAT = remote $ENDAT"
 else
