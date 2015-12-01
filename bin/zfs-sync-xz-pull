@@ -61,3 +61,10 @@ else
     echo "zfs-xz-multi-import  ${OUTPUTDIR}  ${RECVPOOL}  ${SAFENAME}"
           zfs-xz-multi-import  ${OUTPUTDIR}  ${RECVPOOL}  ${SAFENAME}
 fi
+
+if [  -e /usr/local/www/data ]; then
+    STARTAT=$( ls /${DATASET}/.zfs/snapshot/ | tail -1 )
+    cat >/usr/local/www/data/.snapshot.${SAFENAME}.json <<EOF
+{"name":"${DATASET}","local":"${STARTAT}","remote":"${ENDAT}"},
+EOF
+fi
