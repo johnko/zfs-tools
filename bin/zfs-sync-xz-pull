@@ -33,6 +33,7 @@ if [ ! -d /${DATASET}/.zfs/snapshot/ ]; then
     echo "ERROR: ${DATASET} not mounted."
     if [ -e /usr/local/www/data/.snapshot.${SAFENAME}.json ]; then
         rm  /usr/local/www/data/.snapshot.${SAFENAME}.json
+        stat-json-urep
     fi
     exit 1
 fi
