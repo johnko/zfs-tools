@@ -54,7 +54,7 @@ if [ "$STARTAT" = "$ENDAT" ]; then
     echo "local $STARTAT = remote $ENDAT"
 else
     # ALGORITHM: if file exists in output dir, then we weren't done rsync and import, skip the multi-export
-    if ! ls ${OUTPUTDIR} | grep "${SAFENAME}" ; then
+    if ! ls ${OUTPUTDIR} | grep "${SAFENAME}" >/dev/null 2>&1 ; then
         # ALGORITHM: ssh remote zfs-xz-multi-export local_last_snapshot to remote_last_snapshot
         # limit to 5 so we don't run out of room
         $REMOTE_CONNECTION "zfs-xz-multi-export  ${DATASET}@${STARTAT}  ${OUTPUTDIR}  5"
